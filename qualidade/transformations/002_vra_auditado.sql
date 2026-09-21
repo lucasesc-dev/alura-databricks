@@ -1,0 +1,20 @@
+-- ---------------------------------------------------------------------------
+-- Passo 2 — o contrato de dados, escrito como codigo.
+--
+-- TODAS as expectations aqui sao "warn" (nenhuma tem ON VIOLATION). Isso e
+-- arquitetura, nao preguica: a silver nao pode perder registro. As expectations
+-- MEDEM a qualidade e publicam a metrica no event log; a linha continua viva.
+--
+-- Quem decide excluir e a gold, porque excluir e decisao de negocio.
+--
+-- Por que LIVE VIEW e nao TEMPORARY VIEW: CREATE TEMPORARY VIEW nao aceita
+-- clausula CONSTRAINT. LIVE VIEW e a forma retida exatamente para o caso
+-- "view intermediaria com expectations" — nada e materializado em UC aqui,
+-- so as metricas do contrato saem para o event log.
+--
+-- Cuidado com NULL: numa expectation, NULL conta como REPROVADO. Por isso as
+-- regras que podem receber NULL legitimamente (voo cancelado nao tem horario
+-- real) escrevem o NULL como aprovado, explicitamente. Sem isso, uma regra
+-- mede outra: as duas devolvem o mesmo numero e voce reporta 30 mil voos com
+-- "chegada antes da partida" que nao existem.
+-- ---------------------------------------------------------------------------
